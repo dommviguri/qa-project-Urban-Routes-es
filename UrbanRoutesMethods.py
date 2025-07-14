@@ -1,11 +1,9 @@
+import data
 from selenium import webdriver
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
-from UrbanRoutesLocators import LocatorsUrbanRoutes
-from data import phone_number, card_number, card_code, message_for_driver
-from selenium.webdriver.common.keys import Keys
-import main
-import helpers
 
 
 class UrbanRoutesPage:
@@ -13,25 +11,22 @@ class UrbanRoutesPage:
         self.driver = driver
         self.locators = LocatorsUrbanRoutes
 
+# poner direcciones
+        def set_from(self, from_address):
+            WebDriverWait(driver, 3).until(EC.element_to_be_clickable(*self.locators.from_field))
+            self.driver.find_element(*self.locators.from_field).send_keys(from_address)
 
-# añadir las direcciones
-    ###ejemplo
-    def set_from(self, from_address):
-        WebDriverWait(driver, 3).until(EC.element_to_be_clickable(*self.locators.from_field))
-        self.driver.find_element(*self.locators.from_field).send_keys(from_address)
+        def set_to(self, to_address):
+            self.driver.find_element(*self.locators.to_field).send_keys(to_address)
 
-    def set_to(self, to_address):
-        self.driver.find_element(*self.locators.to_field).send_keys(to_address)
+        def get_from(self):
+            return self.driver.find_element(*self.locators.from_field).get_property('value')
 
-    def get_from(self):
-        return self.driver.find_element(*self.locators.from_field).get_property('value')
-
-    def get_to(self):
-        return self.driver.find_element(*self.locators.to_field).get_property('value')
+        def get_to(self):
+            return self.driver.find_element(*self.locators.to_field).get_property('value')
 
 
 # click command_button
-
     def click_command_button(self):
         WebDriverWait(driver, 3).until(EC.element_to_be_clickable(*self.locators.command_button)
         self.driver.find_element(*self.locators.command_button).click()
@@ -47,13 +42,40 @@ class UrbanRoutesPage:
     def click_add_phone_number_button(self):
         self.driver.find_element(*self.locators.add_phone_number_button).click()
     def click_add_phone_number_field(self):
+        WebDriverWait(driver, 3).until(EC.element_to_be_clickable(*self.locators.phone_number_field))
         self.driver.fiend_element(*self.locators.phone_number_field).click()
-    def add_phone_number(self):
+    def add_phone_number(self,phone_number):
         self.driver.find_element(*self.locators.phone_number_field).send_keys(phone_number)
     def click_somewhere_else(self):
         self.driver.fiend_element(*self.locators.phone_number_field).Keys.RETURN
     # poner el código de verificación
     # retrieve_phone_code
+     # no modificar
+    def retrieve_phone_code(driver) -> str:
+        """Este código devuelve un número de confirmación de teléfono y lo devuelve como un string.
+        Utilízalo cuando la aplicación espere el código de confirmación para pasarlo a tus pruebas.
+        El código de confirmación del teléfono solo se puede obtener después de haberlo solicitado en la aplicación."""
+
+        import json
+        import time
+        from selenium.common import WebDriverException
+        code = None
+        for i in range(10):
+            try:
+                logs = [log["message"] for log in driver.get_log('performance') if log.get("message")
+                        and 'api/v1/number?number' in log.get("message")]
+                for log in reversed(logs):
+                    message_data = json.loads(log)["message"]
+                    body = driver.execute_cdp_cmd('Network.getResponseBody',
+                                                  {'requestId': message_data["params"]["requestId"]})
+                    code = ''.join([x for x in body['body'] if x.isdigit()])
+            except WebDriverException:
+                time.sleep(1)
+                continue
+            if not code:
+                raise Exception("No se encontró el código de confirmación del teléfono.\n"
+                                "Utiliza 'retrieve_phone_code' solo después de haber solicitado el código en tu aplicación.")
+            return code
     # click en 'confirmar'
     def click_phone_number_confirmation_button(self):
         self.driver.find_element(*self.locators.phone_number_confirmation_button).click()
@@ -69,10 +91,10 @@ class UrbanRoutesPage:
     def click_add_card_1(self):
         self.driver.find_element(*self.locators.add_card_button).click()
     #añadir número de tarjeta
-    def input_card_number(self):
+    def input_card_number(self,card_number):
         self.driver.find_element(*self.locators.input_card_number_field).click().send_keys(card_number)
     #añadir CVV
-    def input_card_code(self):
+    def input_card_code(self,card_code):
         self.driver.find_element(*self.locators.input_card_code_field).send_keys(card_code)
     #click en agregar
     def click_add_card_2(self):
@@ -86,7 +108,7 @@ class UrbanRoutesPage:
         return pm_text.text
 
 #añadir mensaje para el conductor
-    def add_message_for_driver(self):
+    def add_message_for_driver(self, message_for_driver):
         self.driver.find_element(*self.locators.message_for_driver_field).send_keys(message_for_driver)
     #para el assert
     def get_message_for_driver(self):
@@ -137,7 +159,7 @@ def add_phone_number(self,phone_number, driver):
     self.click_phone_number_field()
     self.add_phone_number(phone_number)
     self.click_somewhere_else()
-    self.retrieve_phone_code(driver)
+    self.retrieve_phone_code()
     self.click_phone_number_confirmation_button()
     self.get_phone_number()
 
