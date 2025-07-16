@@ -9,7 +9,7 @@ class TestUrbanRoutes:
         # no lo modifiques, ya que necesitamos un registro adicional habilitado para recuperar el código de confirmación del teléfono
         capabilities = DesiredCapabilities.CHROME
         capabilities["goog:loggingPrefs"] = {'performance': 'ALL'}
-        cls.driver = webdriver.Chrome(desired_capabilities=capabilities)
+        cls.driver = webdriver.Chrome()
         cls.driver.get(data.urban_routes_url)
         cls.routes_page = UrbanRoutesPage(cls.driver)
 
@@ -22,13 +22,17 @@ class TestUrbanRoutes:
         assert self.routes_page.get_from() == address_from
         assert self.routes_page.get_to() == address_to
         print(address_from, address_to)
+        self.routes_page.click_command_button()
 
 #Test 2 seleccionar tarifa comfort
     def test_select_tariff_comfort(self):
-        self.routes_page.active_tariff()
+        tcard_comfort_price = '$10'
+        self.routes_page.click_comfort_tariff()
+        assert self.routes_page.get_tcard_price() == tcard_comfort_price
+
 
  #Test 3 añador número de teléfono
-    def test_add_phone_number(self):
+    def test_add_phone_number(self, phone_number):
         phone_number = data.phone_number
         self.routes_page.add_phone_number(phone_number)
         assert self.routes_page.get_phone_number() == phone_number
@@ -65,9 +69,7 @@ class TestUrbanRoutes:
 
 #Test 10 OPCIONAL Ver si aparece el modal
 
-
-
-@classmethod
-def teardown_class(cls):
-    cls.driver.quit()
+    @classmethod
+    def teardown_class(cls):
+        cls.driver.quit()
 

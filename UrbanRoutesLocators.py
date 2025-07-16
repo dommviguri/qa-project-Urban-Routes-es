@@ -4,11 +4,11 @@ class LocatorsUrbanRoutes:
     #direcciones
     from_field = (By.ID, 'from')
     to_field = (By.ID, 'to')
-    command_button = (By.CLASS_NAME, '.button.round')
+    command_button = (By.CSS_SELECTOR, '.button.round')
 
     #tarifa
-    comfort_tariff = (By.XPATH, '//div[@class="tcard-title" and text()="Comfort"]/preceding-sibling::button')
-    tcard_4 = (By.CSS_SELECTOR, '[data-for="tariff-card-4"]')
+    comfort_tariff = (By.XPATH, '//div[contains(@class, "tcard") and .//div[text()="Comfort"]]')
+    tcard_price = (By.XPATH, '//div[@class="tcard-price" and contains(normalize-space(), "10")]')
 
     #telefono
     add_phone_number_button = (By.CLASS_NAME, 'np-button')
@@ -16,7 +16,7 @@ class LocatorsUrbanRoutes:
     phone_number_confirmation_button = (By.XPATH, '//button[@class="button full" and text()="Confirmar"]')
 
     #método de pago
-    payment_method_button = (By.CLASS_NAME, '.pp-button.filled')
+    payment_method_button = (By.CLASS_NAME, 'pp-button filled')
     payment_method_text_card_or_cash = (By.CLASS_NAME, 'pp-value-text')
     add_card_button = (By.XPATH, '//div[@class="pp-title" and text()="Agregar tarjeta"]')
     input_card_number_field = (By.XPATH, '//div[@class="card-number-input"]//input')

@@ -13,7 +13,7 @@ class UrbanRoutesPage:
 
 # SET ROUTE
     def set_from(self, from_address):
-        WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable(*self.locators.from_field))
+        WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable(self.locators.from_field))
         self.driver.find_element(*self.locators.from_field).send_keys(from_address)
 
     def set_to(self, to_address):
@@ -29,30 +29,26 @@ class UrbanRoutesPage:
     def set_route(self, from_address, to_address):
         self.set_from(from_address)
         self.set_to(to_address)
-        self.click_command_button()
 
 # click command_button
     def click_command_button(self):
-        WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable(*self.locators.command_button))
+        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable(self.locators.command_button))
         self.driver.find_element(*self.locators.command_button).click()
 
 # TARIFA
     def click_comfort_tariff(self):
-        WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable(*self.locators.comfort_tariff))
+        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable(self.locators.comfort_tariff))
         self.driver.find_element(*self.locators.comfort_tariff).click()
-    def get_tcard_4_active(self):
-        return self.driver.find_element(*self.locators.tcard_4).get_attribute('class')
-    #paso
-    def active_tariff():
-        self.click_comfort_tariff()
-        self.get_tcard_4_active()
+    def get_tcard_price(self):
+        return self.driver.find_element(*self.locators.tcard_price).text
+
 
 
 # TELEFONO
     def click_add_phone_number_button(self):
         self.driver.find_element(*self.locators.add_phone_number_button).click()
     def add_phone_number(self,phone_number):
-        WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable(*self.locators.phone_number_field))
+        WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable(self.locators.phone_number_field))
         self.driver.find_element(*self.locators.phone_number_field).send_keys(phone_number)
         self.driver.find_element(*self.locators.phone_number_field).send_keys(Keys.RETURN)
     def add_verification_code(self):
